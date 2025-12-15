@@ -37,9 +37,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
+import AnalyticsTracker from './components/AnalyticsTracker';
+
 const App: React.FC = () => {
   return (
     <ProjectProvider>
+      <AnalyticsTracker />
       <BrowserRouter>
         <ScrollToTop />
         <Layout>

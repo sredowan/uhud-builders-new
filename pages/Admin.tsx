@@ -47,6 +47,28 @@ const Admin: React.FC = () => {
     }
   }, [settings]);
 
+  // --- Upload Handler ---
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'headerLogo' | 'footerLogo') => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/upload.php', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setSettingsForm(prev => ({ ...prev, [field]: data.url }));
+        alert('Image uploaded successfully!');
+      } else {
+        throw new Error(data.error || 'Upload failed');
+      }
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message}. Ensure you are running on a PHP server (cPanel) for this feature.`);
+      console.error(err);
+    }
+  };
+
   // Auth Handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -527,12 +549,24 @@ const Admin: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-semibold text-gray-500 mb-1 block">Header Logo URL</label>
-                      <input type="text" placeholder="https://..." className="input-field" value={settingsForm.headerLogo || ''} onChange={e => setSettingsForm({ ...settingsForm, headerLogo: e.target.value })} />
+                      <div className="flex gap-2">
+                        <input type="text" placeholder="https://..." className="input-field" value={settingsForm.headerLogo || ''} onChange={e => setSettingsForm({ ...settingsForm, headerLogo: e.target.value })} />
+                        <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 flex items-center justify-center rounded-lg min-w-[50px]">
+                          <Upload className="w-4 h-4" />
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'headerLogo')} />
+                        </label>
+                      </div>
                       <p className="text-[10px] text-gray-400 mt-1">Recommended: Height ~100px (Display 48px). Max Width 300px. Transparent PNG/SVG.</p>
                     </div>
                     <div>
                       <label className="text-sm font-semibold text-gray-500 mb-1 block">Footer Logo URL</label>
-                      <input type="text" placeholder="https://..." className="input-field" value={settingsForm.footerLogo || ''} onChange={e => setSettingsForm({ ...settingsForm, footerLogo: e.target.value })} />
+                      <div className="flex gap-2">
+                        <input type="text" placeholder="https://..." className="input-field" value={settingsForm.footerLogo || ''} onChange={e => setSettingsForm({ ...settingsForm, footerLogo: e.target.value })} />
+                        <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 flex items-center justify-center rounded-lg min-w-[50px]">
+                          <Upload className="w-4 h-4" />
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'footerLogo')} />
+                        </label>
+                      </div>
                       <p className="text-[10px] text-gray-400 mt-1">Recommended: Height ~100px (Display 48px). Max Width 300px. Transparent PNG/SVG.</p>
                     </div>
                   </div>
@@ -543,8 +577,25 @@ const Admin: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-3 border-b pb-2">Contact Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" placeholder="Phone Number" className="input-field" value={settingsForm.contact.phone} onChange={e => setSettingsForm({ ...settingsForm, contact: { ...settingsForm.contact, phone: e.target.value } })} />
+                    <input type="text" placeholder="WhatsApp Number (Start with +)" className="input-field" value={settingsForm.contact.whatsapp || ''} onChange={e => setSettingsForm({ ...settingsForm, contact: { ...settingsForm.contact, whatsapp: e.target.value } })} />
                     <input type="email" placeholder="Email Address" className="input-field" value={settingsForm.contact.email} onChange={e => setSettingsForm({ ...settingsForm, contact: { ...settingsForm.contact, email: e.target.value } })} />
-                    <input type="text" placeholder="Address" className="input-field md:col-span-2" value={settingsForm.contact.address} onChange={e => setSettingsForm({ ...settingsForm, contact: { ...settingsForm.contact, address: e.target.value } })} />
+                    <input type="text" placeholder="Address" className="input-field" value={settingsForm.contact.address} onChange={e => setSettingsForm({ ...settingsForm, contact: { ...settingsForm.contact, address: e.target.value } })} />
+                  </div>
+                </div>
+
+                {/* Tracking & Analytics */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 border-b pb-2">Analytics & Tracking</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 mb-1 block">Google Search Console Verification Code</label>
+                      <input type="text" placeholder="e.g. content-of-content-attribute" className="input-field" value={settingsForm.analytics?.googleSearchConsole || ''} onChange={e => setSettingsForm({ ...settingsForm, analytics: { ...settingsForm.analytics, googleSearchConsole: e.target.value } })} />
+                      <p className="text-[10px] text-gray-400 mt-1">Paste the verification code from the meta tag provided by Google Search Console.</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 mb-1 block">Facebook Pixel ID</label>
+                      <input type="text" placeholder="e.g. 1234567890" className="input-field" value={settingsForm.analytics?.facebookPixel || ''} onChange={e => setSettingsForm({ ...settingsForm, analytics: { ...settingsForm.analytics, facebookPixel: e.target.value } })} />
+                    </div>
                   </div>
                 </div>
 

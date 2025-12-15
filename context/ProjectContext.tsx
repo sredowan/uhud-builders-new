@@ -41,6 +41,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 const DEFAULT_SETTINGS: SiteSettings = {
   contact: {
     phone: '+1 (555) 123-4567',
+    whatsapp: '',
     email: 'aarsayem002@gmail.com',
     address: '1234 Green Ave, Suite 100, Metropolis, NY 10012'
   },
@@ -55,6 +56,10 @@ const DEFAULT_SETTINGS: SiteSettings = {
     aboutUsFull: 'Founded on the principles of integrity and innovation, Uhud Builders Ltd started as a boutique firm...',
     privacyPolicy: 'Your privacy is important to us...',
     termsOfService: 'Welcome to Uhud Builders Ltd...'
+  },
+  analytics: {
+    googleSearchConsole: '',
+    facebookPixel: ''
   }
 };
 

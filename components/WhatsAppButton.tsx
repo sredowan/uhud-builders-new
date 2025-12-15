@@ -1,30 +1,28 @@
 import React from 'react';
-import { MessageCircle } from 'lucide-react';
 import { useProjects } from '../context/ProjectContext';
+import { MessageCircle } from 'lucide-react';
 
 const WhatsAppButton: React.FC = () => {
     const { settings } = useProjects();
+    const whatsappNumber = settings?.contact?.whatsapp;
 
-    // Format phone number: remove non-numeric chars
-    // If no phone number is set, fallback to a default or hide
-    const rawPhone = settings?.contact?.phone || '';
-    const cleanPhone = rawPhone.replace(/\D/g, '');
+    if (!whatsappNumber) return null;
 
-    if (!cleanPhone) return null;
-
-    const whatsappUrl = `https://wa.me/${cleanPhone}`;
+    // Clean number for URL
+    const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
+    const waUrl = `https://wa.me/${cleanNumber}`;
 
     return (
         <a
-            href={whatsappUrl}
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 flex items-center justify-center group"
-            aria-label="Chat on WhatsApp"
+            className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50 animate-bounce hover:animate-none group"
+            title="Chat on WhatsApp"
         >
-            <MessageCircle size={28} />
-            <span className="max-w-0 overflow-hidden group-hover:max-w-xs group-hover:ml-2 transition-all duration-300 ease-in-out whitespace-nowrap font-medium">
-                Chat with us
+            <MessageCircle className="w-8 h-8" />
+            <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                Chat with Us
             </span>
         </a>
     );

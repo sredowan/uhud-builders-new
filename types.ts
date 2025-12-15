@@ -42,6 +42,7 @@ export interface SiteSettings {
   footerLogo?: string;
   contact: {
     phone: string;
+    whatsapp?: string;
     email: string;
     address: string;
   };
@@ -56,6 +57,10 @@ export interface SiteSettings {
     aboutUsFull: string;
     privacyPolicy: string;
     termsOfService: string;
+  };
+  analytics: {
+    googleSearchConsole?: string;
+    facebookPixel?: string;
   };
 }
 
