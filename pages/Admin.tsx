@@ -50,7 +50,7 @@ const Admin: React.FC = () => {
   // Auth Handler
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123') setIsAuthenticated(true);
+    if (password === 'JJstmg3xpt9@!') setIsAuthenticated(true);
     else alert('Invalid Password');
   };
 
