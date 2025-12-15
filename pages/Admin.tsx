@@ -48,7 +48,7 @@ const Admin: React.FC = () => {
   }, [settings]);
 
   // --- Upload Handler ---
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'headerLogo' | 'footerLogo') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'headerLogo' | 'footerLogo' | 'favicon') => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     const formData = new FormData();
@@ -58,7 +58,11 @@ const Admin: React.FC = () => {
       const res = await fetch('/upload.php', { method: 'POST', body: formData });
       const data = await res.json();
       if (res.ok && data.url) {
-        setSettingsForm(prev => ({ ...prev, [field]: data.url }));
+        if (field === 'favicon') {
+          setSettingsForm(prev => ({ ...prev, seo: { ...prev.seo, favicon: data.url } }));
+        } else {
+          setSettingsForm(prev => ({ ...prev, [field]: data.url }));
+        }
         alert('Image uploaded successfully!');
       } else {
         throw new Error(data.error || 'Upload failed');
@@ -595,6 +599,34 @@ const Admin: React.FC = () => {
                     <div>
                       <label className="text-sm font-semibold text-gray-500 mb-1 block">Facebook Pixel ID</label>
                       <input type="text" placeholder="e.g. 1234567890" className="input-field" value={settingsForm.analytics?.facebookPixel || ''} onChange={e => setSettingsForm({ ...settingsForm, analytics: { ...settingsForm.analytics, facebookPixel: e.target.value } })} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* SEO & Meta */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 border-b pb-2">SEO & Meta</h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 mb-1 block">Site Title</label>
+                      <input type="text" placeholder="e.g. Uhud Builders Ltd" className="input-field" value={settingsForm.seo?.siteTitle || ''} onChange={e => setSettingsForm({ ...settingsForm, seo: { ...settingsForm.seo, siteTitle: e.target.value } })} />
+                      <p className="text-[10px] text-gray-400 mt-1">Appears in browser tab and search results.</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 mb-1 block">Meta Description</label>
+                      <textarea rows={2} placeholder="Brief description of your site..." className="input-field" value={settingsForm.seo?.metaDescription || ''} onChange={e => setSettingsForm({ ...settingsForm, seo: { ...settingsForm.seo, metaDescription: e.target.value } })} />
+                      <p className="text-[10px] text-gray-400 mt-1">Shown in search engine results (150-160 characters recommended).</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-gray-500 mb-1 block">Site Icon (Favicon) URL</label>
+                      <div className="flex gap-2">
+                        <input type="text" placeholder="https://..." className="input-field" value={settingsForm.seo?.favicon || ''} onChange={e => setSettingsForm({ ...settingsForm, seo: { ...settingsForm.seo, favicon: e.target.value } })} />
+                        <label className="cursor-pointer bg-gray-200 hover:bg-gray-300 text-gray-600 px-3 flex items-center justify-center rounded-lg min-w-[50px]">
+                          <Upload className="w-4 h-4" />
+                          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'favicon' as any)} />
+                        </label>
+                      </div>
+                      <p className="text-[10px] text-gray-400 mt-1">Recommended: 32x32px or 64x64px PNG/ICO.</p>
                     </div>
                   </div>
                 </div>

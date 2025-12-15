@@ -62,6 +62,11 @@ export interface SiteSettings {
     googleSearchConsole?: string;
     facebookPixel?: string;
   };
+  seo: {
+    siteTitle?: string;
+    metaDescription?: string;
+    favicon?: string;
+  };
 }
 
 export interface ContactFormData {

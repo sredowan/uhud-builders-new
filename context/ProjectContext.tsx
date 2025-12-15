@@ -60,6 +60,11 @@ const DEFAULT_SETTINGS: SiteSettings = {
   analytics: {
     googleSearchConsole: '',
     facebookPixel: ''
+  },
+  seo: {
+    siteTitle: 'Uhud Builders Ltd',
+    metaDescription: 'Building dreams, one project at a time.',
+    favicon: ''
   }
 };
 

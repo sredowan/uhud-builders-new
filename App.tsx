@@ -38,11 +38,13 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 import AnalyticsTracker from './components/AnalyticsTracker';
+import SEOMetaTags from './components/SEOMetaTags';
 
 const App: React.FC = () => {
   return (
     <ProjectProvider>
       <AnalyticsTracker />
+      <SEOMetaTags />
       <BrowserRouter>
         <ScrollToTop />
         <Layout>
