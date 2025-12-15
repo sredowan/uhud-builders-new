@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ProjectProvider } from './context/ProjectContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import WhatsAppButton from './components/WhatsAppButton';
 
 // Pages
 import Home from './pages/Home';
@@ -30,6 +31,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <main className="flex-grow">
         {children}
       </main>
+      <WhatsAppButton />
       <Footer />
     </div>
   );
