@@ -9,8 +9,13 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true
     },
-    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3001",
-    trustedOrigins: ["http://localhost:5173", "http://localhost:3001"],
+    baseURL: process.env.BETTER_AUTH_URL || "https://uhudbuilders.com",
+    trustedOrigins: [
+        "http://localhost:5173",
+        "http://localhost:3001",
+        "https://uhudbuilders.com",
+        "http://uhudbuilders.com"
+    ],
     advanced: {
         crossSubDomainCookies: {
             enabled: true

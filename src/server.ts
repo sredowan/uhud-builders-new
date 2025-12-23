@@ -21,7 +21,12 @@ const PORT = process.env.PORT || 3001;
 
 // Enable CORS
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:3001"], // Allow frontend dev server and self
+    origin: [
+        "http://localhost:5173",
+        "http://localhost:3001",
+        "https://uhudbuilders.com",
+        "http://uhudbuilders.com"
+    ],
     credentials: true
 }));
 
@@ -180,7 +185,7 @@ app.use(express.static(distDir));
 // Catch-all handler
 app.get(/.*/, (req, res) => {
     if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API Not Found' });
-    res.sendFile(path.join(distDir, 'index.dev.html'));
+    res.sendFile(path.join(distDir, 'index.html'));
 });
 
 app.listen(PORT, () => {
