@@ -44,9 +44,9 @@ import SEOMetaTags from './components/SEOMetaTags';
 const App: React.FC = () => {
   return (
     <ProjectProvider>
-      <AnalyticsTracker />
-      <SEOMetaTags />
       <BrowserRouter>
+        <AnalyticsTracker />
+        <SEOMetaTags />
         <ScrollToTop />
         <Layout>
           <Routes>
