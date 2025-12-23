@@ -19,6 +19,7 @@ export interface Project {
   logoUrl?: string;
   units: UnitConfig[];
   buildingAmenities: string[];
+  order?: number;
 }
 
 export interface GalleryItem {
@@ -57,6 +58,12 @@ export interface SiteSettings {
     aboutUsFull: string;
     privacyPolicy: string;
     termsOfService: string;
+  };
+  homePage: {
+    heroTitle: string;
+    heroSubtitle: string;
+    heroImage: string;
+    showWhyChooseUs: boolean;
   };
   analytics: {
     googleSearchConsole?: string;

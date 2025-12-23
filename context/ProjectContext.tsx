@@ -21,6 +21,7 @@ interface ProjectContextType {
   addProject: (project: Project) => Promise<void>;
   updateProject: (project: Project) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
+  reorderProjects: (id: string, direction: 'up' | 'down') => Promise<void>;
   getProject: (id: string) => Project | undefined;
 
   gallery: GalleryItem[];
@@ -56,6 +57,12 @@ const DEFAULT_SETTINGS: SiteSettings = {
     aboutUsFull: 'Founded on the principles of integrity and innovation, Uhud Builders Ltd started as a boutique firm...',
     privacyPolicy: 'Your privacy is important to us...',
     termsOfService: 'Welcome to Uhud Builders Ltd...'
+  },
+  homePage: {
+    heroTitle: 'Building Dreams, Creating Legacies.',
+    heroSubtitle: 'Crafting spaces that inspire, endure, and harmonize with nature.',
+    heroImage: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&q=80&w=1920',
+    showWhyChooseUs: true
   },
   analytics: {
     googleSearchConsole: '',
@@ -97,7 +104,71 @@ const SAMPLE_PROJECTS: Omit<Project, 'id'>[] = [
         floorPlanImage: ""
       }
     ],
-    buildingAmenities: ["Lift (Modern Elevator)", "Power Backup (Full Generator)", "Integrated PBX System"]
+    buildingAmenities: ["Lift (Modern Elevator)", "Power Backup (Full Generator)", "Integrated PBX System"],
+    order: 1
+  },
+  {
+    title: "Mayer Badhon",
+    location: "Mohammadpur, Dhaka",
+    price: "Starts from 95 Lac",
+    description: "Mayer Badhon is designed to provide a sense of belonging and community. Featuring spacious apartments with modern amenities, it's the perfect place to grow your family in a secure and friendly environment.",
+    status: "Ongoing",
+    imageUrl: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80&w=1000",
+    logoUrl: "",
+    units: [
+      {
+        name: "Standard Unit",
+        size: "1250 Sq. Ft.",
+        bedrooms: 3,
+        bathrooms: 3,
+        balconies: 2,
+        features: ["South Facing", "Utility Room"]
+      }
+    ],
+    buildingAmenities: ["Community Hall", "Rooftop Garden", "24/7 Security"],
+    order: 2
+  },
+  {
+    title: "Sorkar Garden",
+    location: "Uttara, Dhaka",
+    price: "Starts from 1.5 Cr",
+    description: "Experience the tranquility of nature at Sorkar Garden. Located in the premium sector of Uttara, this project offers lush green surroundings, a private park, and luxurious living spaces designed for your comfort.",
+    status: "Completed",
+    imageUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1000",
+    logoUrl: "",
+    units: [
+      {
+        name: "Luxury Apartment",
+        size: "2400 Sq. Ft.",
+        bedrooms: 4,
+        bathrooms: 4,
+        balconies: 4,
+        features: ["Lake View", "Servant Room", "Double Glazed Windows"]
+      }
+    ],
+    buildingAmenities: ["Swimming Pool", "Gymnasium", "Kids Play Zone", "Jogging Track"],
+    order: 3
+  },
+  {
+    title: "Uhud Tower",
+    location: "Gulshan, Dhaka",
+    price: "Starts from 3.5 Cr",
+    description: "Uhud Tower stands as a symbol of prestige in Gulshan. With its iconic architecture and world-class amenities, it offers an exclusive lifestyle for the elite. Commercial and residential spaces available.",
+    status: "Upcoming",
+    imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000",
+    logoUrl: "",
+    units: [
+      {
+        name: "Penthouse Suite",
+        size: "4500 Sq. Ft.",
+        bedrooms: 5,
+        bathrooms: 6,
+        balconies: 4,
+        features: ["Private Pool", "Panaromic View", "Smart Home System"]
+      }
+    ],
+    buildingAmenities: ["Concierge Service", "Helipad", "Infinity Pool", "Business Center"],
+    order: 4
   }
 ];
 
@@ -121,11 +192,14 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setError(null);
     try {
       // 1. Fetch Projects
-      const projectsSnap = await getDocs(collection(db, 'projects'));
+      const projectsSnap = await getDocs(query(collection(db, 'projects'), orderBy('order', 'asc')));
       let projectsData = projectsSnap.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
       })) as Project[];
+
+      // Handle legacy data without order
+      projectsData = projectsData.sort((a, b) => (a.order || 0) - (b.order || 0));
 
       // 2. Fetch Gallery
       const gallerySnap = await getDocs(collection(db, 'gallery'));
@@ -198,9 +272,14 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const addProject = async (project: Project) => {
     try {
       const { id, ...projectData } = project;
-      const docRef = await addDoc(collection(db, 'projects'), projectData);
-      const newProject = { ...project, id: docRef.id };
-      setProjects((prev) => [newProject, ...prev]);
+
+      // Assign order: last + 1
+      const maxOrder = projects.reduce((max, p) => Math.max(max, p.order || 0), 0);
+      const newProjectData = { ...projectData, order: maxOrder + 1 };
+
+      const docRef = await addDoc(collection(db, 'projects'), newProjectData);
+      const newProject = { ...project, id: docRef.id, order: maxOrder + 1 };
+      setProjects((prev) => [...prev, newProject]);
     } catch (err: any) { throw err; }
   };
 
@@ -218,6 +297,36 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       await deleteDoc(doc(db, 'projects', id));
       setProjects(prev => prev.filter(p => p.id !== id));
     } catch (err: any) { throw err; }
+  };
+
+  const reorderProjects = async (id: string, direction: 'up' | 'down') => {
+    const currentIndex = projects.findIndex(p => p.id === id);
+    if (currentIndex === -1) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= projects.length) return; // Out of bounds
+
+    const currentProject = projects[currentIndex];
+    const targetProject = projects[targetIndex];
+
+    // Swap orders
+    const newOrderCurrent = targetProject.order || 0;
+    const newOrderTarget = currentProject.order || 0;
+
+    // Optimistic Update
+    const newProjects = [...projects];
+    newProjects[currentIndex] = { ...currentProject, order: newOrderCurrent };
+    newProjects[targetIndex] = { ...targetProject, order: newOrderTarget };
+    newProjects.sort((a, b) => (a.order || 0) - (b.order || 0));
+    setProjects(newProjects);
+
+    try {
+      await updateDoc(doc(db, 'projects', currentProject.id), { order: newOrderCurrent });
+      await updateDoc(doc(db, 'projects', targetProject.id), { order: newOrderTarget });
+    } catch (err: any) {
+      // Revert on error if needed, or just let valid data re-fetch
+      console.error("Failed to reorder:", err);
+    }
   };
 
   const getProject = (id: string) => {
@@ -285,7 +394,7 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   return (
     <ProjectContext.Provider value={{
-      projects, loading, error, addProject, updateProject, deleteProject, getProject,
+      projects, loading, error, addProject, updateProject, deleteProject, reorderProjects, getProject,
       gallery, addToGallery, removeFromGallery,
       messages, addMessage, deleteMessage,
       settings, updateSettings, seedDatabase

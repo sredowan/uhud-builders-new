@@ -9,9 +9,10 @@ lerna-debug.log*
 
 node_modules
 node_modules
-# dist - Commented out to allow deployment via Git
+# dist
+dist
 dist-ssr
-dist-ssr
+uploads
 *.local
 
 # Editor directories and files
