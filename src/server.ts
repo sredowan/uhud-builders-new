@@ -30,8 +30,9 @@ app.use(cors({
     credentials: true
 }));
 
-// Ensure uploads directory exists (go up one level from src)
-const uploadDir = path.join(__dirname, '..', 'uploads');
+// Ensure uploads directory exists
+// Use process.cwd() for bundled server compatibility
+const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
@@ -178,8 +179,8 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 
 
 // Serve static files from 'dist' directory (Vite build) - Production only
-// Go up one level from src
-const distDir = path.join(__dirname, '..', 'dist');
+// Use process.cwd() for bundled server compatibility
+const distDir = path.join(process.cwd(), 'dist');
 app.use(express.static(distDir));
 
 // Catch-all handler
