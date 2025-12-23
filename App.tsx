@@ -12,6 +12,7 @@ import ProjectDetails from './pages/ProjectDetails';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
 import Gallery from './pages/Gallery';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
@@ -56,6 +57,7 @@ const App: React.FC = () => {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/privacy-policy" element={<Privacy />} />
             <Route path="/terms-of-service" element={<Terms />} />
           </Routes>

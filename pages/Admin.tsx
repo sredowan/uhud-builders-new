@@ -6,6 +6,8 @@ import {
   Trash2, Save, AlertCircle, Database, X, Home, Image as ImageIcon,
   Building, LogOut, ChevronRight, ArrowUp, ArrowDown
 } from 'lucide-react';
+import { authClient } from '../lib/auth-client';
+import { useNavigate } from 'react-router-dom';
 
 type Tab = 'dashboard' | 'projects' | 'gallery' | 'messages' | 'settings' | 'homepage';
 
@@ -18,8 +20,9 @@ const Admin: React.FC = () => {
     loading, error
   } = useProjects();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { data: session, isPending: isAuthPending } = authClient.useSession();
+
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
 
   // Project Form State
@@ -39,6 +42,14 @@ const Admin: React.FC = () => {
   useEffect(() => {
     if (settings) setSettingsForm(settings);
   }, [settings]);
+
+  // Auth Redirect
+  useEffect(() => {
+    if (!isAuthPending && !session) {
+      navigate('/login');
+    }
+  }, [session, isAuthPending, navigate]);
+
 
   // --- Upload Handler ---
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'headerLogo' | 'footerLogo' | 'favicon' | 'heroImage') => {
@@ -96,13 +107,6 @@ const Admin: React.FC = () => {
     }
   };
 
-  // Auth Handler
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'JJstmg3xpt9@!') setIsAuthenticated(true);
-    else alert('Invalid Password');
-  };
-
   // --- Project Handlers ---
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +139,6 @@ const Admin: React.FC = () => {
   const handleEditClick = (project: Project) => {
     setProjectForm({ ...project, logoUrl: project.logoUrl || '', units: project.units || [], buildingAmenities: project.buildingAmenities || [] });
     setIsEditing(true);
-    // Scroll to form if needed, or open modal
   };
 
   const handleAmenityAdd = () => {
@@ -178,21 +181,11 @@ const Admin: React.FC = () => {
     if (window.confirm('Delete this message?')) { await deleteMessage(id); }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <form onSubmit={handleLogin} className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center animate-fade-in">
-          <div className="bg-primary/10 p-3 rounded-full inline-block mb-4"><Lock className="w-8 h-8 text-primary" /></div>
-          <h1 className="text-2xl font-bold mb-6">Admin Login</h1>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-2 border rounded-lg mb-4" placeholder="Enter Password" />
-          <button type="submit" className="w-full bg-primary text-white font-bold py-2 rounded-lg">Login</button>
-          <p className="text-xs text-gray-400 mt-4">Hint: admin123</p>
-        </form>
-      </div>
-    );
+  if (isAuthPending || loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading Admin Panel...</div>;
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading Data...</div>;
+  if (!session) return null;
 
   const SidebarItem = ({ id, label, icon: Icon }: { id: Tab; label: string; icon: any }) => (
     <button
@@ -220,7 +213,13 @@ const Admin: React.FC = () => {
           <SidebarItem id="settings" label="Global Settings" icon={Settings} />
         </nav>
         <div className="absolute bottom-0 w-full p-4 border-t bg-gray-50">
-          <button onClick={() => setIsAuthenticated(false)} className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+          <button
+            onClick={async () => {
+              await authClient.signOut();
+              navigate('/login');
+            }}
+            className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          >
             <LogOut className="w-5 h-5" /> Logout
           </button>
         </div>
@@ -241,7 +240,7 @@ const Admin: React.FC = () => {
         {/* DASHBOARD HOME */}
         {activeTab === 'dashboard' && (
           <div className="animate-fade-in">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Welcome back, Admin</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Welcome back, {session.user?.name}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-l-4 border-l-primary hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">

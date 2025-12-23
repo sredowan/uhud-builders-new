@@ -9,10 +9,12 @@ lerna-debug.log*
 
 node_modules
 node_modules
-# dist
-# dist
-# dist-ssr
-# uploads
+dist
+uploads
+.env
+*.zip
+*.rar
+*.7z
 *.local
 
 # Editor directories and files

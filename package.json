@@ -9,23 +9,31 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "deploy": "vite build && firebase deploy",
-    "server": "node server.js",
-    "start": "node server.js"
+    "server": "npx tsx src/server.ts",
+    "start": "npx tsx src/server.ts"
   },
   "dependencies": {
+    "better-auth": "^1.4.8",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
     "express": "^5.2.1",
     "firebase": "^10.8.1",
     "lucide-react": "^0.344.0",
     "multer": "^2.0.2",
+    "pg": "^8.16.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "tsx": "^4.21.0",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@types/pg": "^8.16.0",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.2.1",
+    "drizzle-kit": "^0.31.8",
     "typescript": "^5.2.2",
     "vite": "^5.1.6"
   }
