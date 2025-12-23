@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from 'express';
 import cors from 'cors';
-import { auth } from '../src/auth';
+import { auth } from './_lib/auth';
 import { toNodeHandler } from 'better-auth/node';
-import { db } from '../src/db';
-import { projects, projectUnits, galleryItems, messages, siteSettings } from '../src/db/schema';
+import { db } from './_lib/db';
+import { projects, projectUnits, galleryItems, messages, siteSettings } from './_lib/db/schema';
 import { eq, desc, asc } from 'drizzle-orm';
 
 const app = express();

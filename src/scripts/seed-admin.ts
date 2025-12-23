@@ -1,6 +1,6 @@
-import { auth } from "../auth";
-import { db } from "../db";
-import { user } from "../db/schema";
+import { auth } from "../../api/_lib/auth";
+import { db } from "../../api/_lib/db";
+import { user } from "../../api/_lib/db/schema";
 import { eq } from "drizzle-orm";
 
 async function seedAdmin() {

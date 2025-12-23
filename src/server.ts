@@ -4,10 +4,10 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { auth } from './auth';
+import { auth } from '../api/_lib/auth';
 import { toNodeHandler } from 'better-auth/node';
-import { db } from './db';
-import { projects, projectUnits, galleryItems, messages, siteSettings } from './db/schema';
+import { db } from '../api/_lib/db';
+import { projects, projectUnits, galleryItems, messages, siteSettings } from '../api/_lib/db/schema';
 import { eq, desc, asc } from 'drizzle-orm';
 import * as dotenv from 'dotenv';
 

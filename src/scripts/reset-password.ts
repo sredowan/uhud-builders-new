@@ -1,6 +1,6 @@
-import { auth } from "../auth";
-import { db } from "../db";
-import { user } from "../db/schema";
+import { auth } from "../../api/_lib/auth";
+import { db } from "../../api/_lib/db";
+import { user } from "../../api/_lib/db/schema";
 import { eq } from "drizzle-orm";
 
 async function resetPassword() {
@@ -43,7 +43,7 @@ async function resetPassword() {
 
     try {
         // Delete accounts/sessions first
-        const { session, account } = await import("../db/schema");
+        const { session, account } = await import("../../api/_lib/db/schema");
         await db.delete(session).where(eq(session.userId, existingUser.id));
         await db.delete(account).where(eq(account.userId, existingUser.id));
 

@@ -1,5 +1,5 @@
-import { db } from "../db";
-import { projects, projectUnits, galleryItems, siteSettings } from "../db/schema";
+import { db } from "../../api/_lib/db";
+import { projects, projectUnits, galleryItems, siteSettings } from "../../api/_lib/db/schema";
 import { eq } from "drizzle-orm";
 
 // Sample Data from ProjectContext (converted to script)
@@ -105,7 +105,7 @@ async function migrate() {
                     bathrooms: u.bathrooms,
                     balconies: u.balconies,
                     features: u.features,
-                    floorPlanImage: u.floorPlanImage || ""
+                    floorPlanImage: (u as any).floorPlanImage || ""
                 });
             }
         }

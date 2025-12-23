@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { db as pgDb } from "../db";
-import { projects, projectUnits, galleryItems, messages, siteSettings } from "../db/schema";
+import { db as pgDb } from "../../api/_lib/db";
+import { projects, projectUnits, galleryItems, messages, siteSettings } from "../../api/_lib/db/schema";
 import { eq } from "drizzle-orm";
 
 // 1. Initialize Firebase (Client SDK is fine for reading public-ish data if rules allow, or if we are admin)
