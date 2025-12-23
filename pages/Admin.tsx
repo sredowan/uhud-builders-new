@@ -9,6 +9,10 @@ import {
 import { authClient } from '../lib/auth-client';
 import { useNavigate } from 'react-router-dom';
 
+// Environment-aware upload URL for split deployment
+const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const UPLOAD_URL = isLocalhost ? 'http://localhost:3001/api/upload' : 'https://uhudbuilders.com/upload.php';
+
 type Tab = 'dashboard' | 'projects' | 'gallery' | 'messages' | 'settings' | 'homepage';
 
 const Admin: React.FC = () => {
@@ -59,7 +63,7 @@ const Admin: React.FC = () => {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
       const data = await res.json();
       if (res.ok && data.url) {
         if (field === 'favicon') {
@@ -86,7 +90,7 @@ const Admin: React.FC = () => {
     formData.append('file', file);
 
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch(UPLOAD_URL, { method: 'POST', body: formData });
       const data = await res.json();
       if (res.ok && data.url) {
         if (unitIndex !== undefined) {

@@ -1,8 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Project, SiteSettings, GalleryItem, ContactMessage, ContactFormData } from '../types';
 
-// We now fetch from our own API instead of Firebase/Dummy Data
-const API_URL = 'http://localhost:3001/api'; // Or relative '/api' in production
+// Environment-aware API URL for split deployment (Vercel backend + Hostinger frontend)
+const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+const API_BASE = isLocalhost ? 'http://localhost:3001' : 'https://api.uhudbuilders.com';
+
+// Helper function to build API URLs
+const apiUrl = (path: string) => `${API_BASE}${path}`;
+
+// For file uploads, use Hostinger PHP endpoint in production
+const UPLOAD_URL = isLocalhost ? 'http://localhost:3001/api/upload' : 'https://uhudbuilders.com/upload.php';
 
 interface ProjectContextType {
   projects: Project[];
@@ -52,10 +59,10 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setError(null);
     try {
       const [projRes, gallRes, msgRes, setRes] = await Promise.all([
-        fetch('/api/projects'),
-        fetch('/api/gallery'),
-        fetch('/api/messages'),
-        fetch('/api/settings')
+        fetch(apiUrl('/api/projects'), { credentials: 'include' }),
+        fetch(apiUrl('/api/gallery'), { credentials: 'include' }),
+        fetch(apiUrl('/api/messages'), { credentials: 'include' }),
+        fetch(apiUrl('/api/settings'), { credentials: 'include' })
       ]);
 
       if (projRes.ok) setProjects(await projRes.json());
@@ -81,10 +88,11 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addProject = async (project: Project) => {
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(apiUrl('/api/projects'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(project)
+        body: JSON.stringify(project),
+        credentials: 'include'
       });
       if (!res.ok) throw new Error("Failed to create");
       const newProj = await res.json();
@@ -107,10 +115,11 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const getProject = (id: string) => projects.find((p) => p.id === id);
 
   const addToGallery = async (item: GalleryItem) => {
-    const res = await fetch('/api/gallery', {
+    const res = await fetch(apiUrl('/api/gallery'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item)
+      body: JSON.stringify(item),
+      credentials: 'include'
     });
     const newItem = await res.json();
     setGallery(prev => [newItem, ...prev]);
@@ -119,10 +128,11 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const removeFromGallery = async (id: string) => { };
 
   const addMessage = async (data: ContactFormData) => {
-    const res = await fetch('/api/messages', {
+    const res = await fetch(apiUrl('/api/messages'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      credentials: 'include'
     });
     const newMsg = await res.json();
     setMessages(prev => [newMsg, ...prev]);

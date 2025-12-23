@@ -14,7 +14,9 @@ export const auth = betterAuth({
         "http://localhost:5173",
         "http://localhost:3001",
         "https://uhudbuilders.com",
-        "http://uhudbuilders.com"
+        "http://uhudbuilders.com",
+        "https://www.uhudbuilders.com",
+        "https://api.uhudbuilders.com"
     ],
     advanced: {
         crossSubDomainCookies: {
