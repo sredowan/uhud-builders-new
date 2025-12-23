@@ -180,7 +180,7 @@ app.use(express.static(distDir));
 // Catch-all handler
 app.get(/.*/, (req, res) => {
     if (req.path.startsWith('/api')) return res.status(404).json({ error: 'API Not Found' });
-    res.sendFile(path.join(distDir, 'index.html'));
+    res.sendFile(path.join(distDir, 'index.dev.html'));
 });
 
 app.listen(PORT, () => {
