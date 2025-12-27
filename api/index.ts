@@ -47,13 +47,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         // Dynamic imports for database-dependent routes
-        const { db } = await import('./_lib/db');
-        const { projects, projectUnits, galleryItems, messages, siteSettings } = await import('./_lib/db/schema');
+        const { db } = await import('./_lib/db/index.js');
+        const { projects, projectUnits, galleryItems, messages, siteSettings } = await import('./_lib/db/schema.js');
         const { eq, desc, asc } = await import('drizzle-orm');
 
         // === AUTH ROUTES ===
         if (url.startsWith('/api/auth/')) {
-            const { auth } = await import('./_lib/auth');
+            const { auth } = await import('./_lib/auth.js');
             const { toNodeHandler } = await import('better-auth/node');
             return toNodeHandler(auth)(req as any, res as any);
         }
