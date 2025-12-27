@@ -81,10 +81,21 @@ app.post('/api/projects', async (req, res) => {
 app.put('/api/projects/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { units, ...projectData } = req.body;
+        const { units, title, location, price, description, status, imageUrl, logoUrl, buildingAmenities } = req.body;
 
+        // Update project - only include editable fields to avoid date serialization issues
         const [updated] = await db.update(projects)
-            .set(projectData)
+            .set({
+                title,
+                location,
+                price,
+                description,
+                status,
+                imageUrl,
+                logoUrl,
+                buildingAmenities,
+                updatedAt: new Date()
+            })
             .where(eq(projects.id, id))
             .returning();
 
@@ -92,7 +103,17 @@ app.put('/api/projects/:id', async (req, res) => {
         await db.delete(projectUnits).where(eq(projectUnits.projectId, id));
         if (units && units.length > 0) {
             for (const u of units) {
-                await db.insert(projectUnits).values({ ...u, projectId: id });
+                await db.insert(projectUnits).values({
+                    id: u.id || undefined,
+                    projectId: id,
+                    name: u.name,
+                    size: u.size,
+                    bedrooms: u.bedrooms,
+                    bathrooms: u.bathrooms,
+                    balconies: u.balconies,
+                    features: u.features || [],
+                    floorPlanImage: u.floorPlanImage || ''
+                });
             }
         }
 
