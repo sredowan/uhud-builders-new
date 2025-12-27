@@ -94,6 +94,67 @@ app.post('/api/projects', async (req, res) => {
     }
 });
 
+app.delete('/api/projects/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        // First delete associated units
+        await db.delete(projectUnits).where(eq(projectUnits.projectId, id));
+        // Then delete the project
+        await db.delete(projects).where(eq(projects.id, id));
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to delete project" });
+    }
+});
+
+app.put('/api/projects/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { units, title, location, price, description, status, imageUrl, logoUrl, buildingAmenities } = req.body;
+
+        // Update project - only include editable fields to avoid date serialization issues
+        const [updatedProject] = await db.update(projects)
+            .set({
+                title,
+                location,
+                price,
+                description,
+                status,
+                imageUrl,
+                logoUrl,
+                buildingAmenities,
+                updatedAt: new Date()
+            })
+            .where(eq(projects.id, id))
+            .returning();
+
+        // Update units: delete existing and insert new ones
+        if (units && units.length > 0) {
+            await db.delete(projectUnits).where(eq(projectUnits.projectId, id));
+            for (const u of units) {
+                // Only insert specific unit fields
+                await db.insert(projectUnits).values({
+                    id: u.id || undefined,
+                    projectId: id,
+                    name: u.name,
+                    size: u.size,
+                    bedrooms: u.bedrooms,
+                    bathrooms: u.bathrooms,
+                    balconies: u.balconies,
+                    features: u.features || [],
+                    floorPlanImage: u.floorPlanImage || ''
+                });
+            }
+        }
+
+        res.json(updatedProject);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to update project" });
+    }
+});
+
 // 2. Gallery
 app.get('/api/gallery', async (req, res) => {
     try {
