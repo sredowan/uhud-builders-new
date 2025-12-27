@@ -1,11 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import express from 'express';
 import cors from 'cors';
-import { auth } from './_lib/auth';
-import { toNodeHandler } from 'better-auth/node';
-import { db } from './_lib/db';
-import { projects, projectUnits, galleryItems, messages, siteSettings } from './_lib/db/schema';
-import { eq, desc, asc } from 'drizzle-orm';
 
 const app = express();
 
@@ -15,7 +10,8 @@ const allowedOrigins = [
     "http://localhost:3001",
     "https://uhudbuilders.com",
     "http://uhudbuilders.com",
-    "https://www.uhudbuilders.com"
+    "https://www.uhudbuilders.com",
+    "https://api.uhudbuilders.com"
 ];
 
 app.use(cors({
@@ -31,8 +27,49 @@ app.options('*', cors());
 // JSON middleware
 app.use(express.json());
 
+// Simple debug endpoint - doesn't require database
+app.get('/api/ping', (req, res) => {
+    res.json({ status: 'ok', message: 'API is reachable', timestamp: new Date().toISOString() });
+});
+
+// Import database and auth with error handling
+let db: any;
+let auth: any;
+let toNodeHandler: any;
+let projects: any, projectUnits: any, galleryItems: any, messages: any, siteSettings: any;
+let eq: any, desc: any, asc: any;
+
+try {
+    const dbModule = require('./_lib/db');
+    db = dbModule.db;
+    const schemaModule = require('./_lib/db/schema');
+    projects = schemaModule.projects;
+    projectUnits = schemaModule.projectUnits;
+    galleryItems = schemaModule.galleryItems;
+    messages = schemaModule.messages;
+    siteSettings = schemaModule.siteSettings;
+    const drizzleModule = require('drizzle-orm');
+    eq = drizzleModule.eq;
+    desc = drizzleModule.desc;
+    asc = drizzleModule.asc;
+    const authModule = require('./_lib/auth');
+    auth = authModule.auth;
+    const betterAuthNode = require('better-auth/node');
+    toNodeHandler = betterAuthNode.toNodeHandler;
+} catch (initError: any) {
+    console.error('Module initialization error:', initError);
+    app.use('/api/*', (req, res) => {
+        res.status(500).json({ error: 'Server initialization failed', details: initError.message });
+    });
+}
+
 // --- Better Auth Handler ---
-app.all("/api/auth/*", toNodeHandler(auth));
+app.all("/api/auth/*", (req, res, next) => {
+    if (toNodeHandler && auth) {
+        return toNodeHandler(auth)(req, res);
+    }
+    res.status(500).json({ error: 'Auth not initialized' });
+});
 
 // --- API Routes ---
 
