@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "deploy": "vite build && firebase deploy",
     "server": "npx tsx src/server.ts",
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "better-auth": "^1.4.8",
