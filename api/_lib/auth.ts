@@ -9,7 +9,7 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true
     },
-    baseURL: process.env.BETTER_AUTH_URL || "https://uhudbuilders.com",
+    baseURL: process.env.BETTER_AUTH_URL || "https://api.uhudbuilders.com",
     trustedOrigins: [
         "http://localhost:5173",
         "http://localhost:3001",
