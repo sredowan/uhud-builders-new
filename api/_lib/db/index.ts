@@ -1,13 +1,12 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import * as schema from './schema';
-import * as dotenv from 'dotenv';
 
-dotenv.config();
-
+// Neon requires SSL - always enable it
 const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+    ssl: { rejectUnauthorized: false }
 });
 
 export const db = drizzle(pool, { schema });
+
